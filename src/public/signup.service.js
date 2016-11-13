@@ -42,7 +42,7 @@
             return registered;
         };
 
-        service.getRegisteredItem() = function() {
+        service.getRegisteredItem = function() {
             return menuItem;
         };
     }
