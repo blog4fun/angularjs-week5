@@ -1,25 +1,31 @@
-(function() {
+(function () {
     'use strict';
 
-    angular.module('public').controller('SignUpController', SignUpController);
+    angular.module('signup').controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ["SignUpService"];
-
-    function SignUpController(SignUpService) {
+    SignUpController.$inject = ['SignUpService', '$rootScope'];
+    function SignUpController(SignUpService, $rootScope) {
         var signupCtrl = this;
-        signupCtrl.invalidItem = false;
-        signupCtrl.saved = false;
+        var listener;
 
-        signupCtrl.submit = function() {
-            var item = SignUpService.getMenuItem(signupCtrl.user.menuitem);
-            if (item === null) {
-                signupCtrl.invalidItem = true;
-                signupCtrl.saved = false;
-                return;
-            }
-            SignUpService.saveUserInfo(signupCtrl.user, item);
-            signupCtrl.invalidItem = false;
-            signupCtrl.saved = true;
+        signupCtrl.$onInit = function () {
+            signupCtrl.noSuchItem = false;
+            signupCtrl.saved = false;
+            listener = $rootScope.$on('signup:noSuchMenuItem', onNoSuchMenuItem);
+        };
+
+        signupCtrl.$onDestroy = function () {
+            listener();
+        }
+
+        function onNoSuchMenuItem(event, data) {
+            signupCtrl.noSuchItem = data.on;
+            signupCtrl.saved = !data.on;
+        }
+
+        signupCtrl.submit = function () {
+            SignUpService.getMenuItem(signupCtrl.user.menuitem);
+            SignUpService.saveUserInfo(signupCtrl.user);
         };
     }
 })();
